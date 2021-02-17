@@ -45,7 +45,8 @@ async function runExport() {
     };
   });
 
-  await governor.propose(transactions, { from: proposerWallet });
+  const proposal = await governor.propose(transactions, { from: proposerWallet, gas: 2000000, gasPrice: 300000000000});
+  console.log(await web3.eth.getTransaction(proposal.receipt.transactionHash))
 
   const identifierTable = identifiers.map(identifier => {
     return {

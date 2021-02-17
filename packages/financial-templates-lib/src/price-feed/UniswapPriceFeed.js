@@ -11,7 +11,7 @@ class UniswapPriceFeed extends PriceFeedInterface {
    * @param {Object} web3 Provider from Truffle instance to connect to Ethereum network.
    * @param {String} uniswapAddress Ethereum address of the Uniswap market the price feed is monitoring.
    * @param {Integer} twapLength Duration of the time weighted average computation used by the price feed.
-   * @param {Integer} historicalLookback How far in the past historical prices will be available using await  getHistoricalPrice.
+   * @param {Integer} historicalLookback How far in the past historical prices will be available using getHistoricalPrice.
    * @param {Function} getTime Returns the current time.
    * @param {Bool} invertPrice Indicates if the Uniswap pair is computed as reserve0/reserve1 (true) or
    * @param {Integer} poolDecimals Precision that prices are reported in on-chain
@@ -62,7 +62,7 @@ class UniswapPriceFeed extends PriceFeedInterface {
     return this.currentTwap && this.convertPoolDecimalsToPriceFeedDecimals(this.currentTwap);
   }
 
-  async getHistoricalPrice(time) {
+  getHistoricalPrice(time) {
     if (time < this.lastUpdateTime - this.historicalLookback) {
       // Requesting an historical TWAP earlier than the lookback.
       throw new Error(`${this.uuid} time ${time} is earlier than TWAP window`);
@@ -76,12 +76,12 @@ class UniswapPriceFeed extends PriceFeedInterface {
     }
   }
 
+  // This function does not return the same type of price data as getHistoricalPrice. It returns the raw
+  // price history from uniswap without a twap. This is by choice, since a twap calculation across the entire
+  // history is 1. complicated and 2. unecessary as this function is only needed for affliate calculations.
   getHistoricalPricePeriods() {
     return this.events.map(event => {
-      return [
-        event.timestamp, // time
-        event.price
-      ];
+      return [event.timestamp, event.price];
     });
   }
 
